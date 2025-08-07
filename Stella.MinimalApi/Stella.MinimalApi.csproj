@@ -8,7 +8,7 @@
 
         <!-- NuGet metadata -->
         <PackageId>Stella.MinimalApi</PackageId>
-        <Version>1.0.0</Version>
+        <Version>1.0.1</Version>
         <Authors>Kerim Cetinbas</Authors>
         <Company>Stella</Company>
         <Description>Minimal API endpoint discovery for ASP.NET Core</Description>
@@ -19,7 +19,6 @@
     </PropertyGroup>
 
     <ItemGroup>
-          <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="9.0.8" />
         <FrameworkReference Include="Microsoft.AspNetCore.App" />
     </ItemGroup>
 
