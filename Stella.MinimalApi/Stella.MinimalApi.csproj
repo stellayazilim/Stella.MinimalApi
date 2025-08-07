@@ -15,6 +15,7 @@
         <PackageTags>minimal-api endpoints aspnetcore</PackageTags>
         <RepositoryUrl>https://github.com/stellayazilim/Stella.MinimalApi</RepositoryUrl>
         <PackageLicenseExpression>MIT</PackageLicenseExpression>
+        <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     </PropertyGroup>
 
     <ItemGroup>
