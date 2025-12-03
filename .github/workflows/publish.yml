@@ -64,8 +64,4 @@ jobs:
         run: ls -al ./nupkg
 
       - name: Publish to NuGet
-        run: |
-          dotnet nuget push "./nupkg/Stella.MinimalApi.*.nupkg" \
-            --source "https://api.nuget.org/v3/index.json" \
-            --api-key "${{ secrets.NUGET_API_KEY }}" \
-            --skip-duplicate
+        run: dotnet nuget push "./nupkg/Stella.MinimalApi.*.nupkg" --source "https://api.nuget.org/v3/index.json" --api-key "${{ secrets.NUGET_API_KEY }}" --skip-duplicate
