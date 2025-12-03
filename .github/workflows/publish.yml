@@ -1,18 +1,13 @@
 name: Publish NuGet Package
 
 on:
-  # AUTOPUBLISH: If a tag is pushed to main
+  # Auto-publish when a tag is pushed
   push:
     tags:
       - "v*.*.*"
 
-  # MANUAL: Run workflow manually with custom version
-  workflow_dispatch:
-    inputs:
-      version:
-        description: "Version to publish (e.g. 1.2.3)"
-        required: true
-        type: string
+  # Manual publish (retry, manual trigger)
+  workflow_dispatch: {}
 
 jobs:
   publish:
@@ -21,43 +16,36 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0   # IMPORTANT: ensures tags are available
 
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: 8.0.x
 
-      # Determine version source
+      # Determine version based on event
       - name: Determine version
         id: versioning
         run: |
-          if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
-            # manual run -> version input
-            VERSION="${{ github.event.inputs.version }}"
-            echo "version=$VERSION" >> $GITHUB_OUTPUT
-            echo "tag=v$VERSION" >> $GITHUB_OUTPUT
-          else
-            # tag push -> strip 'v' prefix
+          if [[ "${{ github.event_name }}" == "push" ]]; then
+            # Event triggered by tag push
             TAG="${GITHUB_REF#refs/tags/}"
-            VERSION="${TAG#v}"  # strips the leading v
-            echo "version=$VERSION" >> $GITHUB_OUTPUT
-            echo "tag=$TAG" >> $GITHUB_OUTPUT
+            VERSION="${TAG#v}"
+          else
+            # Manual run: use latest tag in repo
+            TAG=$(git describe --tags --abbrev=0)
+            VERSION="${TAG#v}"
           fi
-      
-      
-      # Create tag if manual run
-      - name: Create git tag (manual run only)
-        if: ${{ github.event_name == 'workflow_dispatch' }}
-        run: |
-          VERSION="${{ steps.versioning.outputs.version }}"
-          git tag "$VERSION"
-          git push origin "$VERSION"
+
+          echo "TAG=$TAG"
+          echo "VERSION=$VERSION"
+
+          echo "tag=$TAG" >> $GITHUB_OUTPUT
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
 
       - name: Restore
         run: dotnet restore
-
-      - name: Build
-        run: dotnet build -c Release --no-restore
 
       - name: Pack Stella.MinimalApi
         run: |
@@ -67,7 +55,9 @@ jobs:
               -o ./nupkg \
               /p:PackageVersion="$VERSION" \
               /p:Version="$VERSION"
-      
+
+      - name: List packages
+        run: ls -al ./nupkg
 
       - name: Publish to NuGet
         run: |
