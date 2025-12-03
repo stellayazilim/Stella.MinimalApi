@@ -47,7 +47,22 @@ jobs:
       - name: Restore
         run: dotnet restore
 
+      - name: Build
+        run: dotnet build ./Stella.MinimalApi/Stella.MinimalApi.csproj -c Release --no-restore
+
       - name: Pack Stella.MinimalApi
+        run: |
+          VERSION="${{ steps.versioning.outputs.version }}"
+          dotnet pack ./Stella.MinimalApi/Stella.MinimalApi.csproj \
+              -c Release \
+              -o ./nupkg \
+              /p:PackageVersion="$VERSION" \
+              /p:Version="$VERSION" \
+              --no-build
+      
+      - name: Build
+        run: dotnet build ./Stella.MinimalApi/Stella.MinimalApi.csproj -c Release --no-restore
+          - name: Pack Stella.MinimalApi
         run: |
           VERSION="${{ steps.versioning.outputs.version }}"
           dotnet pack ./Stella.MinimalApi/Stella.MinimalApi.csproj \
