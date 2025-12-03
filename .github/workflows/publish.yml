@@ -34,7 +34,7 @@ jobs:
             VERSION="${TAG#v}"
           else
             # Manual run: use latest tag in repo
-            TAG="${GITHUB_REF#refs/tags/}"
+            TAG=$(git describe --tags --abbrev=0)
             VERSION="${TAG#v}"
           fi
 
