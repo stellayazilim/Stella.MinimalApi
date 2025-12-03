@@ -57,13 +57,17 @@ jobs:
       - name: Build
         run: dotnet build -c Release --no-restore
 
-      - name: Pack NuGet
+      - name: Pack Stella.MinimalApi
         run: |
           VERSION="${{ steps.versioning.outputs.version }}"
-          dotnet pack -c Release -o ./nupkg /p:PackageVersion="$VERSION" /p:Version="$VERSION"
-
+          dotnet pack ./Stella.MinimalApi/Stella.MinimalApi.csproj \
+              -c Release \
+              -o ./nupkg \
+              /p:PackageVersion="$VERSION" \
+              /p:Version="$VERSION"
+    
       - name: Publish to NuGet
-        run: dotnet nuget push "./nupkg/*.nupkg" \
+        run: dotnet nuget push "./nupkg/Stella.MinimalApi.*.nupkg" \
           --source "https://api.nuget.org/v3/index.json" \
           --api-key "${{ secrets.NUGET_API_KEY }}" \
           --skip-duplicate
