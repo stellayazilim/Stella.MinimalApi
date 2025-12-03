@@ -32,17 +32,19 @@ jobs:
         id: versioning
         run: |
           if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
-            VERSION_INPUT="${{ github.event.inputs.version }}"
-            echo "Using manual version: $VERSION_INPUT"
-            echo "version=v$VERSION_INPUT" >> $GITHUB_OUTPUT
-          else
-            # Extract version from tag (v1.2.3 → 1.2.3)
-            TAG="${GITHUB_REF#refs/tags/}"
-            VERSION="${TAG#v}"
-            echo "Using tag version: $VERSION"
+            # manual run -> version input
+            VERSION="${{ github.event.inputs.version }}"
             echo "version=$VERSION" >> $GITHUB_OUTPUT
+            echo "tag=v$VERSION" >> $GITHUB_OUTPUT
+          else
+            # tag push -> strip 'v' prefix
+            TAG="${GITHUB_REF#refs/tags/}"
+            VERSION="${TAG#v}"  # strips the leading v
+            echo "version=$VERSION" >> $GITHUB_OUTPUT
+            echo "tag=$TAG" >> $GITHUB_OUTPUT
           fi
-
+      
+      
       # Create tag if manual run
       - name: Create git tag (manual run only)
         if: ${{ github.event_name == 'workflow_dispatch' }}
@@ -65,7 +67,8 @@ jobs:
               -o ./nupkg \
               /p:PackageVersion="$VERSION" \
               /p:Version="$VERSION"
-    
+      
+      
       - name: Publish to NuGet
         run: dotnet nuget push "./nupkg/Stella.MinimalApi.*.nupkg" \
           --source "https://api.nuget.org/v3/index.json" \
