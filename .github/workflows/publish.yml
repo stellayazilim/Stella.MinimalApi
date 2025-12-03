@@ -1,0 +1,69 @@
+name: Publish NuGet Package
+
+on:
+  # AUTOPUBLISH: If a tag is pushed to main
+  push:
+    tags:
+      - "v*.*.*"
+
+  # MANUAL: Run workflow manually with custom version
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Version to publish (e.g. 1.2.3)"
+        required: true
+        type: string
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 8.0.x
+
+      # Determine version source
+      - name: Determine version
+        id: versioning
+        run: |
+          if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
+            VERSION_INPUT="${{ github.event.inputs.version }}"
+            echo "Using manual version: $VERSION_INPUT"
+            echo "version=v$VERSION_INPUT" >> $GITHUB_OUTPUT
+          else
+            # Extract version from tag (v1.2.3 → 1.2.3)
+            TAG="${GITHUB_REF#refs/tags/}"
+            VERSION="${TAG#v}"
+            echo "Using tag version: $VERSION"
+            echo "version=$VERSION" >> $GITHUB_OUTPUT
+          fi
+
+      # Create tag if manual run
+      - name: Create git tag (manual run only)
+        if: ${{ github.event_name == 'workflow_dispatch' }}
+        run: |
+          VERSION="${{ steps.versioning.outputs.version }}"
+          git tag "$VERSION"
+          git push origin "$VERSION"
+
+      - name: Restore
+        run: dotnet restore
+
+      - name: Build
+        run: dotnet build -c Release --no-restore
+
+      - name: Pack NuGet
+        run: |
+          VERSION="${{ steps.versioning.outputs.version }}"
+          dotnet pack -c Release -o ./nupkg /p:PackageVersion="$VERSION" /p:Version="$VERSION"
+
+      - name: Publish to NuGet
+        run: dotnet nuget push "./nupkg/*.nupkg" \
+          --source "https://api.nuget.org/v3/index.json" \
+          --api-key "${{ secrets.NUGET_API_KEY }}" \
+          --skip-duplicate
