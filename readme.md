@@ -166,7 +166,11 @@ public void AddEndpoints_ShouldRegisterAllImplementations()
 
 ---
 
+
 ## 📜 License
 
-MIT License © Stella Yazılım
+This project is released into the **public domain** via the [Unlicense](./LICENSE).
+You may freely copy, reuse, modify, inline, or distribute this code — including
+using it without attribution or embedding it directly inside your project.
+
 Open to contributions and improvements. Enjoy!
