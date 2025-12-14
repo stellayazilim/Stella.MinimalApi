@@ -40,10 +40,9 @@ jobs:
 
       - name: Restore
         run: dotnet restore
-\
       - name: Build
         run: dotnet build -c Release --no-restore
-\
+
       - name: Pack NuGet packages
         run: |
           VERSION="${{ steps.versioning.outputs.version }}"
