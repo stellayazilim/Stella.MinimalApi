@@ -11,36 +11,55 @@ jobs:
   publish:
     runs-on: ubuntu-latest
 
+    permissions:
+      contents: read
+      id-token: write
+
     steps:
+      # Checkout
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
+      # Setup .NET
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: 9.0.x
 
-      - name: Determine version
+      # Determine version from tag
+      - name: Determine version from tag
         id: versioning
         run: |
-          if [[ "${{ github.event_name }}" == "push" ]]; then
+          if [[ "${GITHUB_REF}" == refs/tags/* ]]; then
             TAG="${GITHUB_REF#refs/tags/}"
-            VERSION="${TAG#v}"
           else
-            TAG=$(git describe --tags --abbrev=0)
-            VERSION="${TAG#v}"
+            TAG=$(git describe --tags --abbrev=0 2>/dev/null)
           fi
 
+          if [[ -z "$TAG" ]]; then
+            echo "❌ No tag found. Create a tag like vX.Y.Z before publishing."
+            exit 1
+          fi
+
+          VERSION="${TAG#v}"
+
+          echo "Using tag: $TAG"
           echo "Publishing version: $VERSION"
 
           echo "tag=$TAG" >> $GITHUB_OUTPUT
           echo "version=$VERSION" >> $GITHUB_OUTPUT
+
+      # Restore
       - name: Restore
         run: dotnet restore
+
+      # Build
       - name: Build
         run: dotnet build -c Release --no-restore
+
+      # Pack all NuGet packages
       - name: Pack NuGet packages
         run: |
           VERSION="${{ steps.versioning.outputs.version }}"
@@ -67,12 +86,13 @@ jobs:
             /p:Version="$VERSION" \
             --no-build
 
+      # List packages
       - name: List packages
         run: ls -al ./nupkg
 
+      # Publish to NuGet
       - name: Publish to NuGet
         run: |
           dotnet nuget push "./nupkg/*.nupkg" \
             --source "https://api.nuget.org/v3/index.json" \
-            --api-key "${{ secrets.NUGET_API_KEY }}" \
             --skip-duplicate
