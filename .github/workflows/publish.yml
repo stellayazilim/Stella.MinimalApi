@@ -11,6 +11,8 @@ jobs:
   publish:
     runs-on: ubuntu-latest
 
+    environment: production
+
     permissions:
       contents: read
       id-token: write
@@ -90,9 +92,9 @@ jobs:
       - name: List packages
         run: ls -al ./nupkg
 
-      # Publish to NuGet
+      # Publish to NuGet (Trusted Publishing)
       - name: Publish to NuGet
         run: |
           dotnet nuget push "./nupkg/*.nupkg" \
-            --source "https://api.nuget.org/v3/index.json" \
+            --source https://api.nuget.org/v3/index.json \
             --skip-duplicate
