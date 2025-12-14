@@ -1,12 +1,10 @@
-name: Publish NuGet Package
+name: Publish NuGet Packages
 
 on:
-  # Auto-publish when a tag is pushed
   push:
     tags:
       - "v*.*.*"
 
-  # Manual publish (retry, manual trigger)
   workflow_dispatch: {}
 
 jobs:
@@ -17,51 +15,67 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0   # IMPORTANT: ensures tags are available
+          fetch-depth: 0
 
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: 9.0.x
 
-      # Determine version based on event
       - name: Determine version
         id: versioning
         run: |
           if [[ "${{ github.event_name }}" == "push" ]]; then
-            # Event triggered by tag push
             TAG="${GITHUB_REF#refs/tags/}"
             VERSION="${TAG#v}"
           else
-            # Manual run: use latest tag in repo
             TAG=$(git describe --tags --abbrev=0)
             VERSION="${TAG#v}"
           fi
 
-          echo "TAG=$TAG"
-          echo "VERSION=$VERSION"
+          echo "Publishing version: $VERSION"
 
           echo "tag=$TAG" >> $GITHUB_OUTPUT
           echo "version=$VERSION" >> $GITHUB_OUTPUT
 
       - name: Restore
         run: dotnet restore
-
+\
       - name: Build
-        run: dotnet build ./Stella.MinimalApi/Stella.MinimalApi.csproj -c Release --no-restore
-
-      - name: Pack Stella.MinimalApi
+        run: dotnet build -c Release --no-restore
+\
+      - name: Pack NuGet packages
         run: |
           VERSION="${{ steps.versioning.outputs.version }}"
+          OUTPUT="./nupkg"
+
           dotnet pack ./Stella.MinimalApi/Stella.MinimalApi.csproj \
-              -c Release \
-              -o ./nupkg \
-              /p:PackageVersion="$VERSION" \
-              /p:Version="$VERSION" \
-              --no-build
-      
+            -c Release \
+            -o "$OUTPUT" \
+            /p:PackageVersion="$VERSION" \
+            /p:Version="$VERSION" \
+            --no-build
+
+          dotnet pack ./Stella.MinimalApi.SourceGenerator/Stella.MinimalApi.SourceGenerator.csproj \
+            -c Release \
+            -o "$OUTPUT" \
+            /p:PackageVersion="$VERSION" \
+            /p:Version="$VERSION" \
+            --no-build
+
+          dotnet pack ./Stella.MinimalApi.SourceGenerator.Analyzer/Stella.MinimalApi.SourceGenerator.Analyzer.csproj \
+            -c Release \
+            -o "$OUTPUT" \
+            /p:PackageVersion="$VERSION" \
+            /p:Version="$VERSION" \
+            --no-build
+
       - name: List packages
         run: ls -al ./nupkg
 
       - name: Publish to NuGet
-        run: dotnet nuget push "./nupkg/Stella.MinimalApi.*.nupkg" --source "https://api.nuget.org/v3/index.json" --api-key "${{ secrets.NUGET_API_KEY }}" --skip-duplicate
+        run: |
+          dotnet nuget push "./nupkg/*.nupkg" \
+            --source "https://api.nuget.org/v3/index.json" \
+            --api-key "${{ secrets.NUGET_API_KEY }}" \
+            --skip-duplicate

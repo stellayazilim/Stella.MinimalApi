@@ -5,13 +5,13 @@
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
         <IsPackable>false</IsPackable>
-        <RootNamespace>Stella.MinimalApi.Test</RootNamespace>
     </PropertyGroup>
 
     <ItemGroup>
         <PackageReference Include="coverlet.collector" Version="6.0.2"/>
-        <PackageReference Include="FluentAssertions" Version="8.5.0" />
-        <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="9.0.8" />
+        <PackageReference Include="JetBrains.Annotations" Version="2025.2.4" />
+        <PackageReference Include="Microsoft.AspNetCore.TestHost" Version="9.0.11" />
+        <PackageReference Include="Microsoft.AspNetCore.Testing" Version="10.1.0" />
         <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.12.0"/>
         <PackageReference Include="xunit" Version="2.9.2"/>
         <PackageReference Include="xunit.runner.visualstudio" Version="2.8.2"/>
@@ -22,6 +22,8 @@
     </ItemGroup>
 
     <ItemGroup>
+      <ProjectReference OutputItemType="Analyzer" ReferenceOutputAssembly="false"   Include="..\Stella.MinimalApi.SourceGenerator.Analyzer\Stella.MinimalApi.SourceGenerator.Analyzer.csproj" />
+      <ProjectReference OutputItemType="Analyzer" ReferenceOutputAssembly="false"   Include="..\Stella.MinimalApi.SourceGenerator\Stella.MinimalApi.SourceGenerator.csproj" />
       <ProjectReference Include="..\Stella.MinimalApi\Stella.MinimalApi.csproj" />
     </ItemGroup>
 
