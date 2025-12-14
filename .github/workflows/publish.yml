@@ -8,7 +8,7 @@ on:
   workflow_dispatch: {}
 
 jobs:
-  publish:
+  build-and-publish:
     runs-on: ubuntu-latest
 
     environment: production
@@ -50,7 +50,6 @@ jobs:
           echo "Using tag: $TAG"
           echo "Publishing version: $VERSION"
 
-          echo "tag=$TAG" >> $GITHUB_OUTPUT
           echo "version=$VERSION" >> $GITHUB_OUTPUT
 
       # Restore
@@ -68,33 +67,31 @@ jobs:
           OUTPUT="./nupkg"
 
           dotnet pack ./Stella.MinimalApi/Stella.MinimalApi.csproj \
-            -c Release \
-            -o "$OUTPUT" \
+            -c Release -o "$OUTPUT" \
             /p:PackageVersion="$VERSION" \
-            /p:Version="$VERSION" \
             --no-build
 
           dotnet pack ./Stella.MinimalApi.SourceGenerator/Stella.MinimalApi.SourceGenerator.csproj \
-            -c Release \
-            -o "$OUTPUT" \
+            -c Release -o "$OUTPUT" \
             /p:PackageVersion="$VERSION" \
-            /p:Version="$VERSION" \
             --no-build
 
           dotnet pack ./Stella.MinimalApi.SourceGenerator.Analyzer/Stella.MinimalApi.SourceGenerator.Analyzer.csproj \
-            -c Release \
-            -o "$OUTPUT" \
+            -c Release -o "$OUTPUT" \
             /p:PackageVersion="$VERSION" \
-            /p:Version="$VERSION" \
             --no-build
 
-      # List packages
-      - name: List packages
-        run: ls -al ./nupkg
+      # NuGet login (OIDC → temp API key)
+      - name: NuGet login
+        uses: NuGet/login@v1
+        id: login
+        with:
+          user: ${{ secrets.NUGET_USER }}
 
-      # Publish to NuGet (Trusted Publishing)
+      # Publish to NuGet
       - name: Publish to NuGet
         run: |
           dotnet nuget push "./nupkg/*.nupkg" \
+            --api-key ${{ steps.login.outputs.NUGET_API_KEY }} \
             --source https://api.nuget.org/v3/index.json \
             --skip-duplicate
