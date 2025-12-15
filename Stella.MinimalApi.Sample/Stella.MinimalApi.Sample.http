@@ -1,0 +1,12 @@
+@Stella_MinimalApi_Sample_HostAddress = http://localhost:5020
+
+
+GET {{Stella_MinimalApi_Sample_HostAddress}}/todos/
+Accept: application/json
+
+###
+
+GET {{Stella_MinimalApi_Sample_HostAddress}}/todos/1
+Accept: application/json
+
+###

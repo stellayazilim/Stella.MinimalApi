@@ -8,6 +8,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Stella.MinimalApi.Tests", "
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Stella.MinimalApi.SourceGenerator.Analyzer", "Stella.MinimalApi.SourceGenerator.Analyzer\Stella.MinimalApi.SourceGenerator.Analyzer.csproj", "{C414192E-05D9-4DE2-9100-265FB53B7AA0}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Stella.MinimalApi.Sample", "Stella.MinimalApi.Sample\Stella.MinimalApi.Sample.csproj", "{BFEEA0BB-2713-45D8-9DBE-D241017274F7}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -30,5 +32,9 @@ Global
 		{C414192E-05D9-4DE2-9100-265FB53B7AA0}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C414192E-05D9-4DE2-9100-265FB53B7AA0}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C414192E-05D9-4DE2-9100-265FB53B7AA0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BFEEA0BB-2713-45D8-9DBE-D241017274F7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BFEEA0BB-2713-45D8-9DBE-D241017274F7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BFEEA0BB-2713-45D8-9DBE-D241017274F7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BFEEA0BB-2713-45D8-9DBE-D241017274F7}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
