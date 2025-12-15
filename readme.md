@@ -74,12 +74,12 @@ This package is **fully optional** and only useful when the source generator is 
 | Native AOT                | `Stella.MinimalApi` + `SourceGenerator` |
 | Compile-time guarantees   | All three packages                      |
 
----
+
 ### Inline / Single-file usage
 
 An **inline single-file** version is also available [here](docs/inline-usage.md) for users who prefer
 copy-paste integration or zero dependencies.
----
+
 
 
 ## 📝 Quick Example
